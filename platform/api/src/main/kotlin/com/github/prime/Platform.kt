@@ -7,17 +7,13 @@ enum class PlatformType {
 }
 
 interface PlatformScheduler {
-    fun sync(
-        task: () -> Unit
-    )
+    fun sync(task: () -> Unit)
 
-    fun async(
-        task: () -> Unit
-    )
+    fun async(task: () -> Unit)
 }
 
 interface Platform {
-    val type: enum
+    val type: PlatformType
 
     val scheduler: PlatformScheduler
 }

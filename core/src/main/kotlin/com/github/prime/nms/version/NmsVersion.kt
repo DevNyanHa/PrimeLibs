@@ -11,8 +11,8 @@ data class NmsVersion(
      * @param version 비교할 [NmsVersion]
      * @return 음수: 낮음, 0: 같음, 양수: 높음
      */
-    override fun compareTo(version: NmsVersion): Int =
-        compareValuesBy(this, version, NmsVersion::major, NmsVersion::minor, NmsVersion::patch)
+    override fun compareTo(other: NmsVersion): Int =
+        compareValuesBy(this, other, NmsVersion::major, NmsVersion::minor, NmsVersion::patch)
 
     /**
      * [NmsVersion]을 문자열 형태로 반환합니다.
