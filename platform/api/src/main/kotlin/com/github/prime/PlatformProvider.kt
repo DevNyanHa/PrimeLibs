@@ -1,4 +1,10 @@
 package com.github.prime
 
-class PlatformProvider {
+object PlatformProvider {
+    lateinit var platform: Platform
+        private set
+
+    fun register(platform: Platform) {
+        this.platform = platform
+    }
 }

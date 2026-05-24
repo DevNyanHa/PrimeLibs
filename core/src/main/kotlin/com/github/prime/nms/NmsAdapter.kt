@@ -1,4 +1,8 @@
 package com.github.prime.nms
 
-class NmsAdapter {
+interface NmsAdapter {
+    val id: String
+    val displayName: String
+
+    fun describeCapabilities(): String
 }

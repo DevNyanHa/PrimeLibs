@@ -1,0 +1,6 @@
+name: PrimeLibs
+version: ${version}
+main: com.github.prime.bukkit.PrimeLibraryPlugin
+api-version: "1.21"
+author: prime
+description: Multi-module, multi-version support library plugin scaffold for Paper.
