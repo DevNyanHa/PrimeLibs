@@ -2,7 +2,7 @@ package com.github.prime
 
 import com.github.prime.nms.NmsAdapter
 
-//TODO: 얘도 손봐야함
+// TODO: 얘도 손봐야함
 data class PrimeRuntime(
     val platformType: PlatformType,
     val version: String,

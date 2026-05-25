@@ -1,8 +1,9 @@
-package com.github.prime.utils.color
+package com.github.prime.utils
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.math.roundToInt
+import kotlin.text.iterator
 
 /**
  * 마인크래프트에서 사용되는 모든 색상 및 스타일 정보를 표현하는 클래스
@@ -59,7 +60,7 @@ object ColorUtils {
         var translated = text
 
         // GRADIENT
-        var gradMatcher = GRADIENT_PATTERN.matcher(translated)
+        val gradMatcher = GRADIENT_PATTERN.matcher(translated)
         val gradBuffer = StringBuffer()
         while (gradMatcher.find()) {
             val startHex = gradMatcher.group(1)
