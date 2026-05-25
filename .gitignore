@@ -3,6 +3,8 @@
 .kotlin/
 build/
 **/build/
+docs/
+**/run/
 
 .env
 .env.*

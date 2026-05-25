@@ -1,5 +1,12 @@
 package com.github.prime.nms.version
 
+/**
+ * NMS 버전을 비교 가능한 값 객체로 표현합니다.
+ *
+ * @property major major 버전
+ * @property minor minor 버전
+ * @property patch patch 버전
+ */
 data class NmsVersion(
     val major: Int,
     val minor: Int,
@@ -8,7 +15,7 @@ data class NmsVersion(
     /**
      * 두 [NmsVersion]을 비교합니다.
      *
-     * @param version 비교할 [NmsVersion]
+     * @param other 비교할 [NmsVersion]
      * @return 음수: 낮음, 0: 같음, 양수: 높음
      */
     override fun compareTo(other: NmsVersion): Int =

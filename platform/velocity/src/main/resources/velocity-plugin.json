@@ -1,0 +1,10 @@
+{
+  "id": "primelibs",
+  "name": "PrimeLibs",
+  "version": "${version}",
+  "description": "Multi-module, multi-version support library plugin scaffold for Velocity.",
+  "authors": [
+    "prime"
+  ],
+  "main": "com.github.prime.velocity.PrimeVelocityPlugin"
+}
