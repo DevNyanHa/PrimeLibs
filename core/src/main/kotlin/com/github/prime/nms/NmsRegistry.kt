@@ -6,24 +6,22 @@ import java.util.ServiceLoader
 class NmsRegistry(
     private val classLoader: ClassLoader = NmsRegistry::class.java.classLoader
 ) {
-    private val factories: List<NmsAdapterFactory> by lazy {
+    private val nmsAdapters: List<NmsAdapter> by lazy {
         ServiceLoader
-            .load(NmsAdapterFactory::class.java, classLoader)
+            .load(NmsAdapter::class.java, classLoader)
             .toList()
-            .sortedByDescending { it.supportedVersions.minimum }
+            .distinctBy(NmsAdapter::id)
+            .sortedByDescending { it.nmsVersionRange.minimum }
     }
 
     fun resolve(version: NmsVersion): NmsResolution? {
         val match =
-            factories.firstOrNull { it.supportedVersions.contains(version) }
+            nmsAdapters.firstOrNull { it.nmsVersionRange.contains(version) }
                 ?: return null
 
         return NmsResolution(
             requestedVersion = version,
-            factoryId = match.id,
-            adapter = match.create()
+            adapter = match
         )
     }
-
-    fun describeFactories(): String = factories.joinToString { "${it.id} (${it.supportedVersions})" }
 }

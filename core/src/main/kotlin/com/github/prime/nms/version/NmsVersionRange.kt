@@ -1,5 +1,11 @@
 package com.github.prime.nms.version
 
+/**
+ * NMS 어댑터가 지원하는 버전 범위를 표현합니다.
+ *
+ * @property minimum 지원하는 최소 [NmsVersion]
+ * @property maximum 지원하는 최대 [NmsVersion]. null이면 상한이 없습니다.
+ */
 data class NmsVersionRange(
     val minimum: NmsVersion,
     val maximum: NmsVersion? = null
