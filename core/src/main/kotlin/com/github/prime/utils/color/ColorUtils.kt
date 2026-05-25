@@ -5,53 +5,46 @@ import java.util.regex.Pattern
 import kotlin.math.roundToInt
 
 /**
- * 마인크래프트 기본 색상 및 스타일 코드를 표현합니다.
- *
- * @property code 입력 식별자로 사용되는 문자 (예: 'a')
- * @property colorChar 실제 렌더링에 사용되는 마인크래프트 포맷 문자열 (예: "§a")
+ * 마인크래프트에서 사용되는 모든 색상 및 스타일 정보를 표현하는 클래스
  */
-enum class ColorCode(val code: Char, val colorChar: String) {
-    BLACK('0', "§0"),
-    DARK_BLUE('1', "§1"),
-    DARK_GREEN('2', "§2"),
-    DARK_AQUA('3', "§3"),
-    DARK_RED('4', "§4"),
-    DARK_PURPLE('5', "§5"),
-    GOLD('6', "§6"),
-    GRAY('7', "§7"),
-    DARK_GRAY('8', "§8"),
-    BLUE('9', "§9"),
-    GREEN('a', "§a"),
-    AQUA('b', "§b"),
-    RED('c', "§c"),
-    LIGHT_PURPLE('d', "§d"),
-    YELLOW('e', "§e"),
-    WHITE('f', "§f"),
+sealed class Color {
+    /**
+     * 마인크래프트 클라이언트가 인식할 수 있는 내부 포맷 문자열을 반환합니다.
+     *
+     * @return `§` 문자로 결합된 마인크래프트 내부 표준 포맷 문자열
+     */
+    abstract fun toFormat(): String
 
-    OBFUSCATED('k', "§k"),
-    BOLD('l', "§l"),
-    STRIKETHROUGH('m', "§m"),
-    UNDERLINE('n', "§n"),
-    ITALIC('o', "§o"),
-    RESET('r', "§r");
+    protected fun buildHex(hex: String): String {
+        val builder = StringBuilder("${ColorUtils.COLOR_CHAR}x")
+        for (char in hex) {
+            builder.append(ColorUtils.COLOR_CHAR).append(char)
+        }
+        return builder.toString()
+    }
 
-    override fun toString(): String = colorChar
+    data class Legacy(val code: Char) : Color() {
+        override fun toFormat(): String = "${ColorUtils.COLOR_CHAR}$code"
+    }
 
-    companion object {
-        private val BY_CODE = entries.associateBy { it.code }
+    data class Hex(val hexCode: String) : Color() {
+        override fun toFormat(): String = buildHex(hexCode.lowercase())
+    }
 
-        fun getByCode(code: Char): ColorCode? {
-            return BY_CODE[code]
+    data class Rgb(val r: Int, val g: Int, val b: Int) : Color() {
+        override fun toFormat(): String {
+            val hexStr = String.format("%02x%02x%02x", r, g, b)
+            return buildHex(hexStr)
         }
     }
 }
 
 
 object ColorUtils {
-    private const val ALT_COLOR_CHAR = '&'
-    private const val COLOR_CHAR = '§'
+    const val ALT_COLOR_CHAR = '&'
+    const val COLOR_CHAR = '§'
 
-    private val HEX_PATTERN: Pattern = Pattern.compile("<#([A-Fa-f0-9]{6})>", Pattern.CASE_INSENSITIVE)
+    private val HEX_PATTERN = Pattern.compile("<#([A-Fa-f0-9]{6})>", Pattern.CASE_INSENSITIVE)
     private val GRADIENT_PATTERN = Pattern.compile("<gradient:#([A-Fa-f0-9]{6}):#([A-Fa-f0-9]{6})>(.*?)</gradient>", Pattern.CASE_INSENSITIVE)
 
     /**
@@ -84,7 +77,8 @@ object ColorUtils {
         val hexBuffer = StringBuffer()
         while (hexMatcher.find()) {
             val hexCode = hexMatcher.group(1)
-            hexMatcher.appendReplacement(hexBuffer, convertToMcHex(hexCode))
+            val hexColor = Color.Hex(hexCode)
+            hexMatcher.appendReplacement(hexBuffer, hexColor.toFormat())
         }
         hexMatcher.appendTail(hexBuffer)
         translated = hexBuffer.toString()
@@ -95,10 +89,12 @@ object ColorUtils {
         var i = 0
         while (i < length - 1) {
             if (b[i] == ALT_COLOR_CHAR) {
-                val color = ColorCode.getByCode(b[i + 1])
-                if (color != null) {
-                    b[i] = COLOR_CHAR
-                    b[i + 1] = color.code.lowercaseChar()
+                val nextChar = b[i + 1].lowercaseChar()
+                if ("0123456789abcdefklmnor".indexOf(nextChar) > -1) {
+                    val legacyColor = Color.Legacy(nextChar)
+                    val formatted = legacyColor.toFormat()
+                    b[i] = formatted[0]
+                    b[i + 1] = formatted[1]
                     i++
                 }
             }
@@ -118,7 +114,7 @@ object ColorUtils {
      */
     private fun createGradient(text: String, startHex: String, endHex: String): String {
         if (text.isEmpty()) return ""
-        if (text.length == 1) return convertToMcHex(startHex) + text
+        if (text.length == 1) return Color.Hex(startHex).toFormat() + text
 
         val startRgb = hexToRgb(startHex)
         val endRgb = hexToRgb(endHex)
@@ -132,9 +128,8 @@ object ColorUtils {
             val g = (startRgb[1] + ratio * (endRgb[1] - startRgb[1])).roundToInt()
             val b = (startRgb[2] + ratio * (endRgb[2] - startRgb[2])).roundToInt()
 
-            val currentHex = String.format("%02x%02x%02x", r, g, b)
-
-            result.append(convertToMcHex(currentHex))
+            val rgbColor = Color.Rgb(r, g, b)
+            result.append(rgbColor.toFormat())
             result.append(text[i])
         }
 
@@ -153,20 +148,6 @@ object ColorUtils {
     }
 
     /**
-     * 일반 HEX 문자열을 마인크래프트 내부 HEX 포맷으로 변환합니다.
-     *
-     * @param hex 변환할 HEX 문자열
-     * @return 마인크래프트 HEX 포맷 문자열
-     */
-    private fun convertToMcHex(hex: String): String {
-        val builder = StringBuilder("${COLOR_CHAR}x")
-        for (char in hex.lowercase()) {
-            builder.append(COLOR_CHAR).append(char)
-        }
-        return builder.toString()
-    }
-
-    /**
      * 문자열 내에 존재하는 모든 색상 및 스타일 코드를 제거합니다.
      *
      * @param text 원본 문자열
@@ -175,8 +156,8 @@ object ColorUtils {
     fun stripColor(text: String?): String {
         if (text.isNullOrEmpty()) return ""
 
-        val legacyPattern = "§[0-9a-fk-orA-FK-OR]".toRegex()
-        val hexPattern = "(?i)§x(§[0-9a-f]){6}".toRegex()
+        val legacyPattern = "$COLOR_CHAR[0-9a-fk-orA-FK-OR]".toRegex()
+        val hexPattern = "(?i)${COLOR_CHAR}x(${COLOR_CHAR}[0-9a-f]){6}".toRegex()
 
         return text.replace(hexPattern, "").replace(legacyPattern, "")
     }
@@ -185,10 +166,19 @@ object ColorUtils {
 /**
  * 문자열에 포함된 컬러(&, Hex, Gradient)를 마인크래프트 포맷으로 변환합니다.
  *
+ * ```
  * val msg1 = "&fHello World!".colorize()
  * val msg2 = "<#FF5555>Hello World!".colorize()
  * val msg3 = "<gradient:#FF0000:#000000>Hello World!</gradient>".colorize()
- *
+ * ```
  */
 fun String.colorize(): String = ColorUtils.translate(this)
+
+/**
+ * 문자열 내에 존재하는 모든 마인크래프트 내장 색상 및 스타일 식별 문자를 제거합니다.
+ *
+ * ```
+ * val msg = "§fHello World!".stripColor()
+ * ```
+ */
 fun String.stripColor(): String = ColorUtils.stripColor(this)
