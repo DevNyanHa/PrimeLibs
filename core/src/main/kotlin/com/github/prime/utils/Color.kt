@@ -5,6 +5,8 @@ import java.util.regex.Pattern
 import kotlin.math.roundToInt
 import kotlin.text.iterator
 
+// TODO: platform으로 옮길 것
+
 /**
  * 마인크래프트에서 사용되는 모든 색상 및 스타일 정보를 표현하는 클래스
  */
@@ -24,15 +26,23 @@ sealed class Color {
         return builder.toString()
     }
 
-    data class Legacy(val code: Char) : Color() {
+    data class Legacy(
+        val code: Char
+    ) : Color() {
         override fun toFormat(): String = "${ColorUtils.COLOR_CHAR}$code"
     }
 
-    data class Hex(val hexCode: String) : Color() {
+    data class Hex(
+        val hexCode: String
+    ) : Color() {
         override fun toFormat(): String = buildHex(hexCode.lowercase())
     }
 
-    data class Rgb(val r: Int, val g: Int, val b: Int) : Color() {
+    data class Rgb(
+        val r: Int,
+        val g: Int,
+        val b: Int
+    ) : Color() {
         override fun toFormat(): String {
             val hexStr = String.format("%02x%02x%02x", r, g, b)
             return buildHex(hexStr)
@@ -40,13 +50,22 @@ sealed class Color {
     }
 }
 
-
 object ColorUtils {
     const val ALT_COLOR_CHAR = '&'
     const val COLOR_CHAR = '§'
 
-    private val HEX_PATTERN = Pattern.compile("<#([A-Fa-f0-9]{6})>", Pattern.CASE_INSENSITIVE)
-    private val GRADIENT_PATTERN = Pattern.compile("<gradient:#([A-Fa-f0-9]{6}):#([A-Fa-f0-9]{6})>(.*?)</gradient>", Pattern.CASE_INSENSITIVE)
+    private val HEX_PATTERN =
+        Pattern
+            .compile(
+                "<#([A-Fa-f0-9]{6})>",
+                Pattern.CASE_INSENSITIVE
+            )
+    private val GRADIENT_PATTERN =
+        Pattern
+            .compile(
+                "<gradient:#([A-Fa-f0-9]{6}):#([A-Fa-f0-9]{6})>(.*?)</gradient>",
+                Pattern.CASE_INSENSITIVE
+            )
 
     /**
      * 문자열에 포함된 GRADIENT, HEX, LEGACY 컬러 코드를 일괄 치환합니다.
@@ -113,7 +132,11 @@ object ColorUtils {
      * @param endHex 종료 HEX
      * @return 포맷이 적용된 문자열
      */
-    private fun createGradient(text: String, startHex: String, endHex: String): String {
+    private fun createGradient(
+        text: String,
+        startHex: String,
+        endHex: String
+    ): String {
         if (text.isEmpty()) return ""
         if (text.length == 1) return Color.Hex(startHex).toFormat() + text
 

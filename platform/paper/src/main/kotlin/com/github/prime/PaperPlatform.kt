@@ -7,6 +7,8 @@ class PaperPlatform(
 ) : Platform {
     override val type: PlatformType = PlatformType.PAPER
 
+    override val console: Console = PaperConsole(plugin.logger)
+
     override val scheduler: PlatformScheduler =
         object : PlatformScheduler {
             override fun sync(task: () -> Unit) {

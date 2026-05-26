@@ -15,5 +15,7 @@ interface PlatformScheduler {
 interface Platform {
     val type: PlatformType
 
+    val console: Console
+
     val scheduler: PlatformScheduler
 }
