@@ -3,7 +3,6 @@ package com.github.prime.velocity
 import com.github.prime.PrimeBootstrap
 import com.github.prime.PrimeRuntime
 import com.github.prime.VelocityPlatform
-import com.github.prime.utils.color.Color
 import com.google.inject.Inject
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
@@ -35,16 +34,9 @@ class PrimeVelocityPlugin {
     fun onProxyInitialize(event: ProxyInitializeEvent) {
         runtime =
             PrimeBootstrap.bootstrap(
-                platform = VelocityPlatform(this, server),
+                platform = VelocityPlatform(this, server, logger),
                 version = server.version.version,
                 classLoader = javaClass.classLoader
             )
-
-        Color
-            .primeBanner(
-                platform = runtime.platformType.name,
-                version = runtime.version,
-                adapter = runtime.nmsAdapter?.id
-            ).forEach { logger.info(it) }
     }
 }

@@ -2,7 +2,6 @@ package com.github.prime
 
 import com.github.prime.nms.NmsAdapter
 
-// TODO: 얘도 손봐야함
 data class PrimeRuntime(
     val platformType: PlatformType,
     val version: String,
@@ -17,10 +16,19 @@ object PrimeBootstrap {
     ): PrimeRuntime {
         PlatformProvider.register(platform)
 
+        val nmsAdapter = NmsAdapter.resolve(platform, version, classLoader)
+
+        platform.console.log(
+            Console.LogText(
+                LogType.INFO,
+                "Platform: ${platform.type} Version: $version Adapter: ${nmsAdapter?.id ?: "none"}"
+            )
+        )
+
         return PrimeRuntime(
             platformType = platform.type,
             version = version,
-            nmsAdapter = NmsAdapter.resolve(platform, version, classLoader)
+            nmsAdapter = nmsAdapter
         )
     }
 }
