@@ -5,8 +5,6 @@ import java.util.regex.Pattern
 import kotlin.math.roundToInt
 import kotlin.text.iterator
 
-// TODO: platform으로 옮길 것
-
 /**
  * 마인크래프트에서 사용되는 모든 색상 및 스타일 정보를 표현하는 클래스
  */
